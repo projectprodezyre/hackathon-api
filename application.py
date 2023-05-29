@@ -2,15 +2,14 @@ import csv
 import math
 import logging
 import requests
-
 from flask import Flask, request, jsonify
 
 app = Flask(__name__)
 
-logging.basicConfig(level=logging.INFO, filename='api.log', filemode='w', format='%(asctime)s - %(levelname)s - %(message)s')
+#logging.basicConfig(level=logging.INFO, filename='api.log', filemode='w', format='%(asctime)s - %(levelname)s - %(message)s')
 
 def calculate_rmse(url1, url2):
-    try:
+    try:    
         response1 = requests.get(url1)
         response2 = requests.get(url2)
 
@@ -20,9 +19,28 @@ def calculate_rmse(url1, url2):
         reader1 = csv.reader(data1)
         reader2 = csv.reader(data2)
 
-        # Assuming the CSV files have a single column of numeric values
-        values1 = [float(row[0]) for row in reader1]
-        values2 = [float(row[0]) for row in reader2]
+        print(reader1)
+        print(reader2)
+
+        values1 =[]
+        for row in reader1:
+             values1.append(row[1])
+
+        values1=values1[1:]
+
+        values1 = [float(i) for i in values1]
+
+        print(values1)
+
+        values2 =[]
+        for row in reader2:
+             values2.append(row[1])
+
+        values2=values2[1:]
+
+        values2 = [float(i) for i in values2]
+
+        print(values2)
 
         if len(values1) != len(values2):
             raise ValueError("CSV files should have the same number of rows.")
@@ -31,7 +49,7 @@ def calculate_rmse(url1, url2):
         rmse = math.sqrt(mse)
 
         return rmse
-
+    
     except Exception as e:
         logging.error(f"Error occurred: {str(e)}")
         raise
