@@ -54,6 +54,10 @@ def calculate_rmse(url1, url2):
         logging.error(f"Error occurred: {str(e)}")
         raise
 
+@app.route('/', methods=['GET'])
+def entry_point():
+    return "Hey"
+
 @app.route('/calculate_rmse', methods=['POST'])
 def api_calculate_rmse():
     try:
