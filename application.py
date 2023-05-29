@@ -2,11 +2,21 @@ import csv
 import math
 import logging
 import requests
-from flask import Flask, request, jsonify
+import os
+import sys
+from typing import Optional
+from fastapi import FastAPI, Response, Depends, HTTPException
+from fastapi.security import OAuth2PasswordBearer
+from starlette import status
+import uvicorn
+from pydantic import BaseModel
+import json
+from fastapi.middleware.cors import CORSMiddleware
+from mangum import Mangum
+import datetime
+app = FastAPI()
 
-app = Flask(__name__)
-
-#logging.basicConfig(level=logging.INFO, filename='api.log', filemode='w', format='%(asctime)s - %(levelname)s - %(message)s')
+logging.basicConfig(level=logging.INFO, filename='api.log', filemode='w', format='%(asctime)s - %(levelname)s - %(message)s')
 
 def calculate_rmse(url1, url2):
     try:    
@@ -54,31 +64,38 @@ def calculate_rmse(url1, url2):
         logging.error(f"Error occurred: {str(e)}")
         raise
 
-@app.route('/', methods=['GET'])
+@app.get('/')
 def entry_point():
     return "Hey"
 
-@app.route('/calculate_rmse', methods=['POST'])
-def api_calculate_rmse():
+class CommitPayload(BaseModel):
+    url1: Optional[str] = None
+    url2: Optional[str] = None
+
+@app.post('/calculate_rmse')
+async def api_calculate_rmse(log: CommitPayload):
+    log_dict={
+        'url1':log.url1,
+        'url2': log.url2
+    }
     try:
-        data = request.get_json()
-        url1 = data.get('url1')
-        url2 = data.get('url2')
+        url1 = log_dict.get('url1')
+        url2 = log_dict.get('url2')
 
         if not url1 or not url2:
             raise ValueError("Missing CSV URLs.")
 
         rmse = calculate_rmse(url1, url2)
         logging.info(f"RMSE calculated successfully: {rmse}")
-        return jsonify({'rmse': rmse})
+        return json.dumps({'rmse': rmse})
 
     except ValueError as ve:
         logging.error(f"Value Error: {str(ve)}")
-        return jsonify({'error': str(ve)}), 400
+        return json.dumps({'error': str(ve)}), 400
 
     except Exception as e:
         logging.error(f"Error occurred: {str(e)}")
-        return jsonify({'error': 'An error occurred.'}), 500
+        return json.dumps({'error': 'An error occurred.'}), 500
 
 if __name__ == '__main__':
-    app.run(port=8080)
+    uvicorn.run(app, port=8080, host='0.0.0.0')
