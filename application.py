@@ -63,14 +63,47 @@ def calculate_rmse(url1, url2):
         if len(values1) != len(values2):
             raise ValueError("CSV files should have the same number of rows.")
 
+        if len(values1) == 0:
+            raise ZeroDivisionError("No data available in CSV files.")
+
         mse = sum((x - y) ** 2 for x, y in zip(values1, values2)) / len(values1)
         rmse = math.sqrt(mse)
+        print("RMSE:", rmse)
 
         return rmse
     
+    except FileNotFoundError:
+         logging.error("One or both CSV files could not be found.")
+         raise
+
+    except pd.errors.EmptyDataError:
+         logging.error("One or both CSV files are empty.")
+         raise
+    
+    except pd.errors.ParserError:
+         logging.error("Error parsing CSV files. Please ensure they have the correct format.")
+         raise
+
+    except pd.errors.DtypeWarning:
+         logging.error("Warning: Error converting data types in CSV files.")
+         raise
+
+    except IndexError:
+         logging.error("Column index is out of range for one or both CSV files.")
+         raise
+
+    except ZeroDivisionError as e:
+         logging.error(f"ZeroDivisionError: {e}")
+         raise
+
+    except ValueError as e:
+         logging.error(f"ValueError: {e}")
+         raise
+
     except Exception as e:
-        logging.error(f"Error occurred: {str(e)}")
-        raise
+         logging.error(f"An Error occurred: {str(e)}")
+         raise
+        
 
 @app.get('/')
 def entry_point():
