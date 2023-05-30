@@ -14,43 +14,51 @@ import json
 from fastapi.middleware.cors import CORSMiddleware
 from mangum import Mangum
 import datetime
+import pandas as pd
+
 app = FastAPI()
 
-logging.basicConfig(level=logging.INFO, filename='api.log', filemode='w', format='%(asctime)s - %(levelname)s - %(message)s')
+#logging.basicConfig(level=logging.INFO, filename='api.log', filemode='w', format='%(asctime)s - %(levelname)s - %(message)s')
 
 def calculate_rmse(url1, url2):
     try:    
-        response1 = requests.get(url1)
-        response2 = requests.get(url2)
+        #response1 = requests.get(url1)
+        #response2 = requests.get(url2)
 
-        data1 = response1.text.splitlines()
-        data2 = response2.text.splitlines()
+        #data1 = response1.text.splitlines()
+        #data2 = response2.text.splitlines()
 
-        reader1 = csv.reader(data1)
-        reader2 = csv.reader(data2)
+        #reader1 = csv.reader(data1)
+        #reader2 = csv.reader(data2)
 
-        print(reader1)
-        print(reader2)
+        #print(reader1)
+        #print(reader2)
 
-        values1 =[]
-        for row in reader1:
-             values1.append(row[1])
+        #values1 =[]
+        #for row in reader1:
+        #     values1.append(row[1])
 
-        values1=values1[1:]
+        #values1=values1[1:]
 
-        values1 = [float(i) for i in values1]
+        #values1 = [float(i) for i in values1]
 
-        print(values1)
+        #print(values1)
 
-        values2 =[]
-        for row in reader2:
-             values2.append(row[1])
+        #values2 =[]
+        #for row in reader2:
+        #     values2.append(row[1])
 
-        values2=values2[1:]
+        #values2=values2[1:]
 
-        values2 = [float(i) for i in values2]
+        #values2 = [float(i) for i in values2]
 
-        print(values2)
+        #print(values2)
+
+        data1 = pd.read_csv(url1)
+        data2 = pd.read_csv(url2)
+
+        values1 = list(data1[data1.columns[1]])
+        values2 = list(data2[data2.columns[1]])
 
         if len(values1) != len(values2):
             raise ValueError("CSV files should have the same number of rows.")
@@ -98,4 +106,4 @@ async def api_calculate_rmse(log: CommitPayload):
         return json.dumps({'error': 'An error occurred.'}), 500
 
 if __name__ == '__main__':
-    uvicorn.run(app, port=8080, host='0.0.0.0')
+    uvicorn.run(app, port=8080)
