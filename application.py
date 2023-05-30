@@ -18,7 +18,7 @@ import pandas as pd
 
 app = FastAPI()
 
-#logging.basicConfig(level=logging.INFO, filename='api.log', filemode='w', format='%(asctime)s - %(levelname)s - %(message)s')
+logging.basicConfig(level=logging.INFO, filename='api.log', filemode='w', format='%(asctime)s - %(levelname)s - %(message)s')
 
 def calculate_rmse(url1, url2):
     try:    
