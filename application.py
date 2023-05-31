@@ -20,45 +20,38 @@ app = FastAPI()
 
 logging.basicConfig(level=logging.INFO, filename='api.log', filemode='w', format='%(asctime)s - %(levelname)s - %(message)s')
 
+
 def calculate_rmse(url1, url2):
-    try:    
-        #response1 = requests.get(url1)
-        #response2 = requests.get(url2)
+    try:
+        # response1 = requests.get(url1)
+        # response2 = requests.get(url2)
 
-        #data1 = response1.text.splitlines()
-        #data2 = response2.text.splitlines()
+        # data1 = response1.text.splitlines()
+        # data2 = response2.text.splitlines()
 
-        #reader1 = csv.reader(data1)
-        #reader2 = csv.reader(data2)
+        # reader1 = csv.reader(data1)
+        # reader2 = csv.reader(data2)
 
-        #print(reader1)
-        #print(reader2)
-
-        #values1 =[]
-        #for row in reader1:
+        # values1 = []
+        # for row in reader1:
         #     values1.append(row[1])
 
-        #values1=values1[1:]
+        # values1 = values1[1:]
+        # values1 = [float(i) for i in values1]
 
-        #values1 = [float(i) for i in values1]
-
-        #print(values1)
-
-        #values2 =[]
-        #for row in reader2:
+        # values2 = []
+        # for row in reader2:
         #     values2.append(row[1])
 
-        #values2=values2[1:]
-
-        #values2 = [float(i) for i in values2]
-
-        #print(values2)
+        # values2 = values2[1:]
+        # values2 = [float(i) for i in values2]
 
         data1 = pd.read_csv(url1)
         data2 = pd.read_csv(url2)
 
         values1 = list(data1[data1.columns[1]])
         values2 = list(data2[data2.columns[1]])
+
 
         if len(values1) != len(values2):
             raise ValueError("CSV files should have the same number of rows.")
@@ -71,52 +64,47 @@ def calculate_rmse(url1, url2):
         print("RMSE:", rmse)
 
         return rmse
-    
+
+    #except requests.exceptions.RequestException:
+    #    raise ValueError("Error in fetching CSV data from URLs.")
+
     except FileNotFoundError:
-         logging.error("One or both CSV files could not be found.")
-         raise
+         raise FileNotFoundError("One or both CSV files could not be found.")  
 
     except pd.errors.EmptyDataError:
-         logging.error("One or both CSV files are empty.")
-         raise
-    
+         raise ValueError("One or both CSV files are empty.")
+           
     except pd.errors.ParserError:
-         logging.error("Error parsing CSV files. Please ensure they have the correct format.")
-         raise
-
+         raise ValueError("Error parsing CSV files. Please ensure they have the correct format.")
+         
     except pd.errors.DtypeWarning:
-         logging.error("Warning: Error converting data types in CSV files.")
-         raise
+         raise ValueError("Warning: Error converting data types in CSV files.")
 
     except IndexError:
-         logging.error("Column index is out of range for one or both CSV files.")
-         raise
-
-    except ZeroDivisionError as e:
-         logging.error(f"ZeroDivisionError: {e}")
-         raise
+        raise ValueError("Column index is out of range for one or both CSV files.")
 
     except ValueError as e:
-         logging.error(f"ValueError: {e}")
-         raise
-
+        raise ValueError(f"ValueError: {e}")
+     
     except Exception as e:
          logging.error(f"An Error occurred: {str(e)}")
          raise
-        
+    
 
 @app.get('/')
 def entry_point():
     return "Hey"
 
+
 class CommitPayload(BaseModel):
     url1: Optional[str] = None
     url2: Optional[str] = None
 
+
 @app.post('/calculate_rmse')
 async def api_calculate_rmse(log: CommitPayload):
-    log_dict={
-        'url1':log.url1,
+    log_dict = {
+        'url1': log.url1,
         'url2': log.url2
     }
     try:
@@ -136,7 +124,8 @@ async def api_calculate_rmse(log: CommitPayload):
 
     except Exception as e:
         logging.error(f"Error occurred: {str(e)}")
-        return json.dumps({'error': 'An error occurred.'}), 500
+        return json.dumps({'error': str(e)}), 500
+
 
 if __name__ == '__main__':
     uvicorn.run(app, port=8080, host='0.0.0.0')
