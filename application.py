@@ -59,6 +59,10 @@ def calculate_rmse(url1, url2):
         if len(values1) == 0:
             raise ZeroDivisionError("No data available in CSV files.")
 
+        check_val=[*values1,*values2]
+        if not all(isinstance(value, (int, float)) for value in check_val):
+            raise TypeError("Data type of values in column is not int or float.")
+            
         mse = sum((x - y) ** 2 for x, y in zip(values1, values2)) / len(values1)
         rmse = math.sqrt(mse)
         print("RMSE:", rmse)
