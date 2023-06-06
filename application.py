@@ -55,6 +55,9 @@ def calculate_rmse(url1, url2):
 
         if len(values1) != len(values2):
             raise ValueError("CSV files should have the same number of rows.")
+            
+        if list(data1.columns) != list(data2.columns):
+            raise ValueError("CSV files should have the same number of columns and same names.")
 
         if len(values1) == 0:
             raise ZeroDivisionError("No data available in CSV files.")
