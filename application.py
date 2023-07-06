@@ -52,7 +52,9 @@ def calculate_rmse(url1, url2):
         values1 = list(data1[data1.columns[1]])
         values2 = list(data2[data2.columns[1]])
 
-
+        if data2[data2.columns[1]].isna().sum() == data1.shape[0]:
+            raise ValueError("CSV file should have atleast one non null value.")
+        
         if len(values1) != len(values2):
             raise ValueError("CSV files should have the same number of rows.")
             
